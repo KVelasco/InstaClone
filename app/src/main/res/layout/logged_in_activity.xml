@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -14,10 +13,19 @@
         style="@style/ToolBar.ColorPrimary"
         />
 
-    <WebView
-        android:id="@+id/web_view"
-        android:layout_below="@+id/toolbar"
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/recycler"
+        android:layout_below="@id/toolbar"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:alwaysDrawnWithCache="true"
+        android:background="@color/white_light_background"
+        android:clipToPadding="false"
+        android:drawSelectorOnTop="false"
+        android:fadingEdge="none"
+        android:gravity="center"
+        android:horizontalSpacing="0dip"
+        android:paddingTop="20dp"/>
 
 </RelativeLayout>
