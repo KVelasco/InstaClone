@@ -2,10 +2,7 @@ package com.example.kevinvelasco.instaclone.api;
 
 
 import com.example.kevinvelasco.instaclone.model.Like;
-import com.example.kevinvelasco.instaclone.model.Media;
 import com.example.kevinvelasco.instaclone.model.MediaSearchResponse;
-
-import java.util.List;
 
 import retrofit2.http.DELETE;
 import retrofit2.http.GET;

@@ -9,17 +9,14 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 
 import com.example.kevinvelasco.instaclone.api.InstaService;
-import com.example.kevinvelasco.instaclone.db.InstaSession;
-import com.example.kevinvelasco.instaclone.model.Media;
 import com.example.kevinvelasco.instaclone.model.MediaSearchResponse;
+import com.example.kevinvelasco.instaclone.oauth.InstagramData;
 import com.example.kevinvelasco.instaclone.ui.MediaAdapter;
-
 
 import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import retrofit2.Retrofit;
 import rx.Observer;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
@@ -30,10 +27,7 @@ public class LoggedInActivity extends AppCompatActivity {
     MediaAdapter mediaAdapter;
 
     @Inject
-    SharedPreferences mSharedPreferences;
-
-    @Inject
-    Retrofit mRetrofit;
+    SharedPreferences preferences;
 
     @Inject
     InstaService instaService;
@@ -53,8 +47,9 @@ public class LoggedInActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(mediaAdapter);
         mediaAdapter.setService(instaService);
+        mediaAdapter.setSharedPreferences(preferences);
 
-        instaService.getMediaByLocation("37.7749", "-122.4194", new InstaSession(this).getString(InstaSession.TOKEN))
+        instaService.getMediaByLocation("37.7749", "-122.4194", preferences.getString(InstagramData.TOKEN, ""))
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .unsubscribeOn(Schedulers.io())

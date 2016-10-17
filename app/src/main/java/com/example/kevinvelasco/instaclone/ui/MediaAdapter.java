@@ -1,5 +1,6 @@
 package com.example.kevinvelasco.instaclone.ui;
 
+import android.content.SharedPreferences;
 import android.support.design.widget.Snackbar;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -11,18 +12,13 @@ import android.widget.TextView;
 
 import com.example.kevinvelasco.instaclone.R;
 import com.example.kevinvelasco.instaclone.api.InstaService;
-import com.example.kevinvelasco.instaclone.db.InstaSession;
 import com.example.kevinvelasco.instaclone.model.Like;
 import com.example.kevinvelasco.instaclone.model.Media;
-import com.example.kevinvelasco.instaclone.model.MediaSearchResponse;
+import com.example.kevinvelasco.instaclone.oauth.InstagramData;
 import com.squareup.picasso.Picasso;
-
-import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -35,6 +31,8 @@ public class MediaAdapter extends RecyclerView.Adapter<MediaAdapter.MediaViewHol
 
     private final List<Media> mediaList = new ArrayList<>();
     private InstaService instaService;
+    private SharedPreferences preferences;
+
 
 
     @Override
@@ -48,7 +46,7 @@ public class MediaAdapter extends RecyclerView.Adapter<MediaAdapter.MediaViewHol
         holder.getButton().setOnClickListener(v -> {
             if (instaService != null){
                 if (media.isUserHasLiked()){
-                    instaService.unlikeMediaById(media.getMediaId(), new InstaSession(holder.imageView.getContext()).getString(InstaSession.TOKEN))
+                    instaService.unlikeMediaById(media.getMediaId(), preferences.getString(InstagramData.TOKEN, ""))
                             .subscribeOn(Schedulers.io())
                             .observeOn(AndroidSchedulers.mainThread())
                             .unsubscribeOn(Schedulers.io())
@@ -72,7 +70,7 @@ public class MediaAdapter extends RecyclerView.Adapter<MediaAdapter.MediaViewHol
                                 }
                             });
                 } else {
-                    instaService.likeMediaById(media.getMediaId(), new InstaSession(holder.imageView.getContext()).getString(InstaSession.TOKEN))
+                    instaService.likeMediaById(media.getMediaId(), preferences.getString(InstagramData.TOKEN, ""))
                             .subscribeOn(Schedulers.io())
                             .observeOn(AndroidSchedulers.mainThread())
                             .unsubscribeOn(Schedulers.io())
@@ -114,6 +112,10 @@ public class MediaAdapter extends RecyclerView.Adapter<MediaAdapter.MediaViewHol
 
     public void setService(InstaService instaService){
         this.instaService = instaService;
+    }
+
+    public void setSharedPreferences (SharedPreferences sharedPreferences){
+        this.preferences = sharedPreferences;
     }
 
 

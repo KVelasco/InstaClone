@@ -3,6 +3,8 @@ package com.example.kevinvelasco.instaclone.oauth;
 
 public interface InstagramData {
 
+    String TOKEN = "token";
+
     String SCHEME = "https";
 
     String AUTHORITY  = "api.instagram.com";
