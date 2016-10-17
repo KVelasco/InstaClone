@@ -9,6 +9,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 
 import com.example.kevinvelasco.instaclone.api.InstaService;
+import com.example.kevinvelasco.instaclone.model.Like;
 import com.example.kevinvelasco.instaclone.model.MediaSearchResponse;
 import com.example.kevinvelasco.instaclone.oauth.InstagramData;
 import com.example.kevinvelasco.instaclone.ui.MediaAdapter;
@@ -46,8 +47,60 @@ public class LoggedInActivity extends AppCompatActivity {
         mediaAdapter = new MediaAdapter();
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(mediaAdapter);
-        mediaAdapter.setService(instaService);
-        mediaAdapter.setSharedPreferences(preferences);
+        mediaAdapter.setListener(media -> {
+            if (instaService != null){
+                if (media.isUserHasLiked()){
+                    instaService.unlikeMediaById(media.getMediaId(), preferences.getString(InstagramData.TOKEN, ""))
+                            .subscribeOn(Schedulers.io())
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .unsubscribeOn(Schedulers.io())
+                            .subscribe(new Observer<Like>() {
+                                @Override
+                                public void onCompleted() {
+                                    Snackbar.make(recyclerView, "Unliked Image", Snackbar.LENGTH_LONG)
+                                            .show();
+                                }
+
+                                @Override
+                                public void onError(Throwable e) {
+                                    Snackbar.make(recyclerView, e.toString(), Snackbar.LENGTH_LONG)
+                                            .show();
+                                }
+
+                                @Override
+                                public void onNext(Like Like) {
+                                    media.setUserHasLiked(false);
+                                    mediaAdapter.notifyDataSetChanged();
+                                }
+                            });
+                } else {
+                    instaService.likeMediaById(media.getMediaId(), preferences.getString(InstagramData.TOKEN, ""))
+                            .subscribeOn(Schedulers.io())
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .unsubscribeOn(Schedulers.io())
+                            .subscribe(new Observer<Like>() {
+                                @Override
+                                public void onCompleted() {
+                                    Snackbar.make(recyclerView, "Liked Image", Snackbar.LENGTH_LONG)
+                                            .show();
+                                }
+
+                                @Override
+                                public void onError(Throwable e) {
+                                    Snackbar.make(recyclerView, e.toString(), Snackbar.LENGTH_LONG)
+                                            .show();
+                                }
+
+                                @Override
+                                public void onNext(Like Like) {
+                                    media.setUserHasLiked(true);
+                                    mediaAdapter.notifyDataSetChanged();
+                                }
+                            });
+                }
+            }
+        });
+
 
         instaService.getMediaByLocation("37.7749", "-122.4194", preferences.getString(InstagramData.TOKEN, ""))
                 .subscribeOn(Schedulers.io())

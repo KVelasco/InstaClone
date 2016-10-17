@@ -1,7 +1,5 @@
 package com.example.kevinvelasco.instaclone.ui;
 
-import android.content.SharedPreferences;
-import android.support.design.widget.Snackbar;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,10 +9,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.kevinvelasco.instaclone.R;
-import com.example.kevinvelasco.instaclone.api.InstaService;
-import com.example.kevinvelasco.instaclone.model.Like;
 import com.example.kevinvelasco.instaclone.model.Media;
-import com.example.kevinvelasco.instaclone.oauth.InstagramData;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -22,16 +17,12 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import rx.Observer;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
 
 
 public class MediaAdapter extends RecyclerView.Adapter<MediaAdapter.MediaViewHolder> {
 
     private final List<Media> mediaList = new ArrayList<>();
-    private InstaService instaService;
-    private SharedPreferences preferences;
+    Listener listener;
 
 
 
@@ -44,56 +35,8 @@ public class MediaAdapter extends RecyclerView.Adapter<MediaAdapter.MediaViewHol
     public void onBindViewHolder(MediaViewHolder holder, int position) {
         Media media = mediaList.get(position);
         holder.getButton().setOnClickListener(v -> {
-            if (instaService != null){
-                if (media.isUserHasLiked()){
-                    instaService.unlikeMediaById(media.getMediaId(), preferences.getString(InstagramData.TOKEN, ""))
-                            .subscribeOn(Schedulers.io())
-                            .observeOn(AndroidSchedulers.mainThread())
-                            .unsubscribeOn(Schedulers.io())
-                            .subscribe(new Observer<Like>() {
-                                @Override
-                                public void onCompleted() {
-                                    Snackbar.make(holder.imageView, "Unliked Image", Snackbar.LENGTH_LONG)
-                                        .show();
-                                }
-
-                                @Override
-                                public void onError(Throwable e) {
-                                    Snackbar.make(holder.imageView, e.toString(), Snackbar.LENGTH_LONG)
-                                            .show();
-                                }
-
-                                @Override
-                                public void onNext(Like Like) {
-                                    media.setUserHasLiked(false);
-                                    notifyDataSetChanged();
-                                }
-                            });
-                } else {
-                    instaService.likeMediaById(media.getMediaId(), preferences.getString(InstagramData.TOKEN, ""))
-                            .subscribeOn(Schedulers.io())
-                            .observeOn(AndroidSchedulers.mainThread())
-                            .unsubscribeOn(Schedulers.io())
-                            .subscribe(new Observer<Like>() {
-                                @Override
-                                public void onCompleted() {
-                                    Snackbar.make(holder.imageView, "Liked Image", Snackbar.LENGTH_LONG)
-                                            .show();
-                                }
-
-                                @Override
-                                public void onError(Throwable e) {
-                                    Snackbar.make(holder.imageView, e.toString(), Snackbar.LENGTH_LONG)
-                                            .show();
-                                }
-
-                                @Override
-                                public void onNext(Like Like) {
-                                    media.setUserHasLiked(true);
-                                    notifyDataSetChanged();
-                                }
-                            });
-                }
+            if (listener != null) {
+                listener.onClick(media);
             }
         });
         holder.bind(media);
@@ -110,17 +53,15 @@ public class MediaAdapter extends RecyclerView.Adapter<MediaAdapter.MediaViewHol
         return mediaList.size();
     }
 
-    public void setService(InstaService instaService){
-        this.instaService = instaService;
+    public void setListener(Listener Listener){
+        this.listener = Listener;
     }
 
-    public void setSharedPreferences (SharedPreferences sharedPreferences){
-        this.preferences = sharedPreferences;
+    public interface Listener{
+        void onClick(Media media);
     }
 
-
-
-     class MediaViewHolder extends RecyclerView.ViewHolder {
+     static  class MediaViewHolder extends RecyclerView.ViewHolder {
 
         @BindView(R.id.image_view_card)
         ImageView imageView;
